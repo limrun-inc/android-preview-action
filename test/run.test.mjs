@@ -34,6 +34,13 @@ mock.module("@limrun/api/index.js", { defaultExport: class {
         calls.push(["sync", ...args]);
         if (failure === "sync") throw new Error("sync failed");
       },
+      run: (script, options) => {
+        calls.push(["prepare", script, options]);
+        const promise = failure === "prepare" ? Promise.reject(new Error("prepare failed")) : Promise.resolve(
+          failure === "prepare-exit" ? { exitCode: 1, status: "FAILED" } : result
+        );
+        return Object.assign(promise, { command: new EventEmitter(), stdout: new EventEmitter(), stderr: new EventEmitter() });
+      },
       gradlebuild: (options) => {
         calls.push(["build", options]);
         const promise = failure === "build" ? Promise.reject(new Error("connection lost")) : Promise.resolve(result);
@@ -156,3 +163,25 @@ test("omits absent openUrl and preserves asset encoding", () => {
   const url = new URL(buildPreviewUrl("https://console.limrun.com", "preview/owner/app/pr-42-android", ""));
   assert.deepEqual([...url.searchParams], [["asset", "preview/owner/app/pr-42-android"], ["platform", "android"]]);
 });
+
+
+test("prepares after sync with build-env and before the build", async () => {
+  inputs.prepare = "npm ci\nnpm run generate\n";
+  inputs["build-env"] = "APP_ENV=preview";
+  await runMain();
+  assert.deepEqual(calls.map(([kind]) => kind), ["create", "sync", "prepare", "build", "list", "delete", "comment"]);
+  assert.deepEqual(calls.find(([kind]) => kind === "prepare").slice(1), [
+    "set -e\nnpm ci\nnpm run generate\n", { env: ["APP_ENV=preview"] },
+  ]);
+});
+
+for (const phase of ["prepare", "prepare-exit"]) {
+  test(`cleans up without building or posting when ${phase} fails`, async () => {
+    inputs.prepare = "false";
+    failure = phase;
+    await assert.rejects(runMain());
+    assert.ok(calls.some(([kind]) => kind === "delete"));
+    assert.equal(calls.some(([kind]) => kind === "build" || kind === "comment"), false);
+    assert.deepEqual(outputs, {});
+  });
+}

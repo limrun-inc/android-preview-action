@@ -110,6 +110,20 @@ export async function runMain(): Promise<void> {
     const gradle = await client.gradleInstances.createClient({ instance });
     core.info(`Syncing ${projectPath}...`);
     await gradle.sync(projectPath, { watch: false });
+    const prepare = core.getInput("prepare", { trimWhitespace: false });
+    if (prepare.trim()) {
+      core.info("Preparing the project...");
+      const command = gradle.run(`set -e\n${prepare}`, {
+        ...(buildEnv.length && { env: buildEnv }),
+      });
+      command.command.on("data", (data) => core.info(data.toString()));
+      command.stdout.on("data", (data) => core.info(data.toString()));
+      command.stderr.on("data", (data) => core.info(data.toString()));
+      const result = await command;
+      if (result.exitCode !== 0 || result.status !== "SUCCEEDED") {
+        throw new Error(`Preparation ${result.status} with exit code ${result.exitCode}`);
+      }
+    }
     core.info(`Building and uploading asset ${assetName}...`);
     const build = gradle.gradlebuild({
       tasks: tasks.length ? tasks : ["assembleDebug"],
