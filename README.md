@@ -59,6 +59,7 @@ and then opens `open-url` if supplied.
 | `project-path` | `.` | Local directory to sync. Include the project files needed by the build. |
 | `gradle-project-path` | Auto-discovered | Gradle root relative to the synced directory, useful for ambiguous monorepos. |
 | `tasks` | `assembleDebug` | One Gradle task per line. Use tasks that produce an installable APK, such as `:app:assembleDemoDebug`. |
+| `prepare` | Empty | Shell script run in the synced remote workspace before building, with `build-env`. A failure stops the build. |
 | `build-env` | Empty | One `KEY=VALUE` environment variable per line, passed to the remote build. |
 | `open-url` | Empty | URL or app deep link to open after the preview app launches. Pass plain text; encoding is automatic. |
 
@@ -77,6 +78,25 @@ Build an APK, not an AAB, for emulator previews. A signed debug APK from
 remote Gradle builds. Managed Expo projects are detected by the build service;
 for an interactive Expo dev-client session with Metro, use the
 [Expo workflow](https://docs.limrun.com/docs/android/build-with-gradle).
+
+## Prepare the project
+
+Use `prepare` for remote setup or code generation after source sync and before
+Gradle builds. It runs through the same sandbox command API as `lim gradle run`,
+from the synced project root, with `build-env` available. For a JavaScript project:
+
+```yaml
+with:
+  api-key: ${{ secrets.LIM_API_KEY }}
+  prepare: |
+    npm ci
+    npm run generate
+  tasks: assembleDebug
+```
+
+The script runs with `/bin/sh` and `set -e`. Logs stream to Actions, and a failed
+command stops the build while cleanup still runs. Disk snapshots are currently
+available for Xcode builds only; this action has no snapshot inputs.
 
 ## Outputs
 
@@ -101,5 +121,4 @@ npm run build
 ```
 
 Commit `dist/` with source changes. CI rebuilds the action and checks that the
-bundle is current. Package version `0.1.0` is the initial release; publish the
-matching `v0.1.0` Git tag from the merged commit.
+bundle is current. Publish the matching version tag from the merged commit after CI passes.

@@ -20,6 +20,10 @@ inputs:
     description: 'Newline-delimited Gradle tasks that produce an installable APK.'
     required: false
     default: 'assembleDebug'
+  prepare:
+    description: 'Shell script to run in the synced remote workspace before Gradle builds. Stops on failure; receives build-env.'
+    required: false
+    default: ''
   build-env:
     description: 'Newline-delimited KEY=VALUE environment variables for the Gradle build.'
     required: false
