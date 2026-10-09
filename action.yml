@@ -1,0 +1,43 @@
+name: 'Android Preview on Limrun'
+description: 'Build Android apps on Limrun Gradle sandboxes and post live preview links on pull requests'
+inputs:
+  api-key:
+    description: 'Limrun API key. Store as a repository secret.'
+    required: true
+  github-token:
+    description: 'GitHub token for posting PR comments.'
+    required: false
+    default: ${{ github.token }}
+  project-path:
+    description: 'Local project directory to sync to the Gradle sandbox.'
+    required: false
+    default: '.'
+  gradle-project-path:
+    description: 'Gradle root relative to the synced directory, when auto-discovery is ambiguous.'
+    required: false
+    default: ''
+  tasks:
+    description: 'Newline-delimited Gradle tasks that produce an installable APK.'
+    required: false
+    default: 'assembleDebug'
+  build-env:
+    description: 'Newline-delimited KEY=VALUE environment variables for the Gradle build.'
+    required: false
+    default: ''
+  open-url:
+    description: 'URL or app deep link to open after the preview app launches. Pass without URL encoding.'
+    required: false
+    default: ''
+outputs:
+  preview-url:
+    description: 'Link to install and launch the uploaded APK in a streamed Android emulator.'
+  asset-name:
+    description: 'The PR-scoped Limrun asset name.'
+branding:
+  icon: 'smartphone'
+  color: 'green'
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
+  post: 'dist/index.js'
+  post-if: 'always()'

@@ -1,0 +1,20 @@
+{
+  "name": "android-preview-action",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-test-module-mocks --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
+    "@limrun/api": "0.60.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@vercel/ncc": "^0.38.4",
+    "typescript": "^6.0.0"
+  }
+}
