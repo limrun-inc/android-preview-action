@@ -32,6 +32,10 @@ inputs:
     description: 'URL or app deep link to open after the preview app launches. Pass without URL encoding.'
     required: false
     default: ''
+  tunnel:
+    description: 'Name of a persistent tunnel the preview emulator attaches to before the app launches, so the app reaches services in your private network. The tunnel''s connector must be running when a reviewer opens the preview.'
+    required: false
+    default: ''
 outputs:
   preview-url:
     description: 'Link to install and launch the uploaded APK in a streamed Android emulator.'
