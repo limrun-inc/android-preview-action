@@ -165,6 +165,18 @@ test("omits absent openUrl and preserves asset encoding", () => {
 });
 
 
+test("names the persistent tunnel in the preview link", async () => {
+  inputs.tunnel = "staging";
+  await runMain();
+  assert.equal(new URL(outputs["preview-url"]).searchParams.get("tunnel"), "staging");
+});
+
+test("rejects a malformed tunnel name before creating a builder", async () => {
+  inputs.tunnel = "Staging_1";
+  await assert.rejects(runMain(), /tunnel must be a persistent tunnel's name/);
+  assert.equal(calls.some(([kind]) => kind === "create"), false);
+});
+
 test("prepares after sync with build-env and before the build", async () => {
   inputs.prepare = "npm ci\nnpm run generate\n";
   inputs["build-env"] = "APP_ENV=preview";

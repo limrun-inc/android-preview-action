@@ -10,12 +10,27 @@ function selector(labels: Record<string, string>): string {
   return Object.entries(labels).map(([key, value]) => `${key}=${value}`).join(",");
 }
 
-export function buildPreviewUrl(consoleUrl: string, assetName: string, openUrl: string): string {
+export function buildPreviewUrl(consoleUrl: string, assetName: string, openUrl: string, tunnel = ""): string {
   const url = new URL("preview", consoleUrl.endsWith("/") ? consoleUrl : `${consoleUrl}/`);
   url.searchParams.set("asset", assetName);
   url.searchParams.set("platform", "android");
   if (openUrl) url.searchParams.set("openUrl", openUrl);
+  if (tunnel) url.searchParams.set("tunnel", tunnel);
   return url.toString();
+}
+
+/**
+ * The persistent tunnel the preview emulator attaches to, or "". A malformed
+ * name fails the run before the build, not when a reviewer opens the preview.
+ */
+function previewTunnel(): string {
+  const value = core.getInput("tunnel").trim();
+  if (value && (value.length > 63 || !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(value))) {
+    throw new Error(
+      `tunnel must be a persistent tunnel's name: lowercase letters, digits and dashes, at most 63 characters, got "${value}"`
+    );
+  }
+  return value;
 }
 
 async function cleanup(client: Limrun, labelSelector: string): Promise<void> {
@@ -98,7 +113,8 @@ export async function runMain(): Promise<void> {
   const previewUrl = buildPreviewUrl(
     process.env.LIMRUN_CONSOLE_URL || "https://console.limrun.com",
     assetName,
-    core.getInput("open-url")
+    core.getInput("open-url"),
+    previewTunnel()
   );
 
   try {
