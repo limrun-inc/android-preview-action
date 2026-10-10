@@ -76,7 +76,7 @@ variables.
 
 Set `tunnel` when the app needs services in your private network, such as a
 staging API behind a VPN. It names a
-[persistent tunnel](https://docs.limrun.com/docs/ci/persistent-tunnels): the
+[persistent tunnel](https://docs.limrun.com/docs/networking/persistent-tunnels): the
 preview emulator attaches to it before the app launches, so the tunnel's
 connector must be running when a reviewer opens the preview. Android emulators
 attach only when every exact selector of the tunnel uses port 1024 or higher.
