@@ -62,7 +62,7 @@ and then opens `open-url` if supplied.
 | `prepare` | Empty | Shell script run in the synced remote workspace before building, with `build-env`. A failure stops the build. |
 | `build-env` | Empty | One `KEY=VALUE` environment variable per line, passed to the remote build. |
 | `open-url` | Empty | URL or app deep link to open after the preview app launches. Pass plain text; encoding is automatic. |
-| `tunnel` | Empty | Name of a persistent tunnel the preview emulator attaches to before the app launches. Its connector must be running when a reviewer opens the preview. |
+| `tunnel` | Empty | Name of a private tunnel the preview emulator attaches to before the app launches. Its connector must be running when a reviewer opens the preview. |
 
 `build-env` configures the build process. App configuration depends on how the
 project reads those values at build time. `KEY=` sets an empty value, and values
@@ -76,7 +76,7 @@ variables.
 
 Set `tunnel` when the app needs services in your private network, such as a
 staging API behind a VPN. It names a
-[persistent tunnel](https://docs.limrun.com/docs/networking/persistent-tunnels): the
+[private tunnel](https://docs.limrun.com/docs/networking/private-tunnels): the
 preview emulator attaches to it before the app launches, so the tunnel's
 connector must be running when a reviewer opens the preview. Android emulators
 attach only when every exact selector of the tunnel uses port 1024 or higher.

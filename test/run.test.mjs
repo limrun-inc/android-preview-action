@@ -165,7 +165,7 @@ test("omits absent openUrl and preserves asset encoding", () => {
 });
 
 
-test("names the persistent tunnel in the preview link", async () => {
+test("names the private tunnel in the preview link", async () => {
   inputs.tunnel = "staging";
   await runMain();
   assert.equal(new URL(outputs["preview-url"]).searchParams.get("tunnel"), "staging");
@@ -173,7 +173,7 @@ test("names the persistent tunnel in the preview link", async () => {
 
 test("rejects a malformed tunnel name before creating a builder", async () => {
   inputs.tunnel = "Staging_1";
-  await assert.rejects(runMain(), /tunnel must be a persistent tunnel's name/);
+  await assert.rejects(runMain(), /tunnel must be a private tunnel's name/);
   assert.equal(calls.some(([kind]) => kind === "create"), false);
 });
 
